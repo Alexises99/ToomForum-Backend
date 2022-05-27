@@ -41,10 +41,7 @@ const config_1 = __importDefault(require("./config"));
 const logger = __importStar(require("./logger"));
 const sequelize = new sequelize_1.Sequelize(config_1.default.POSTGREESQL, {
     dialectOptions: {
-        ssl: {
-            require: true,
-            rejectUnauthorized: false
-        }
+        ssl: false
     },
     logging: false
 });
@@ -62,3 +59,9 @@ const connectToDataBase = () => __awaiter(void 0, void 0, void 0, function* () {
     return null;
 });
 exports.connectToDataBase = connectToDataBase;
+/**
+ * {
+      require: true,
+      rejectUnauthorized: false
+    }
+ */ 

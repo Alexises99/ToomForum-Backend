@@ -37,15 +37,18 @@ const bcrypt = __importStar(require("bcrypt"));
 const initialUsers = [
     {
         username: 'elubuntin',
-        password: 'pinguino'
+        password: 'pinguino',
+        image_id: null
     },
     {
         username: 'lowrins',
-        password: 'tortuga'
+        password: 'tortuga',
+        image_id: null
     },
     {
         username: 'ranaldo',
-        password: 'culero'
+        password: 'culero',
+        image_id: null
     },
 ];
 const usersInDb = () => __awaiter(void 0, void 0, void 0, function* () {
@@ -55,7 +58,7 @@ const usersInDb = () => __awaiter(void 0, void 0, void 0, function* () {
 const createUsers = () => {
     const createdUsers = initialUsers.map((user) => __awaiter(void 0, void 0, void 0, function* () {
         const password = yield bcrypt.hash(user.password, 10);
-        return yield models_1.User.create({ username: user.username, password });
+        return yield models_1.User.create({ username: user.username, password, imageId: null });
     }));
     return Promise.all(createdUsers);
 };

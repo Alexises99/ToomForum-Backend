@@ -16,7 +16,6 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const usersTestHelper_1 = __importDefault(require("../utils/tests/usersTestHelper"));
 const supertest_1 = __importDefault(require("supertest"));
 const app_1 = require("../app");
-const db_1 = require("../utils/db");
 const api = (0, supertest_1.default)(app_1.app);
 const getToken = ({ username, password }) => __awaiter(void 0, void 0, void 0, function* () {
     const response = yield api
@@ -71,8 +70,9 @@ describe('Users tests', () => {
             .set('Authorization', `bearer ${token}`)
             .expect(200)
             .expect('Content-Type', /application\/json/);
+        const { username, image_id: imageId } = user;
         expect(responseApi.body).toBeDefined();
-        expect(user).toMatchObject(responseApi.body);
+        expect({ username, imageId }).toMatchObject(responseApi.body);
     }));
     test('400 when dont provide params and the valid message', () => __awaiter(void 0, void 0, void 0, function* () {
         const newUser = {
@@ -124,8 +124,5 @@ describe('Users tests', () => {
             .set('Authorization', `bearer ${token}`)
             .expect(401);
         expect(response.body.message).toBe('not authorized, you are not this user');
-    }));
-    afterAll(() => __awaiter(void 0, void 0, void 0, function* () {
-        yield db_1.sequelize.close();
     }));
 });

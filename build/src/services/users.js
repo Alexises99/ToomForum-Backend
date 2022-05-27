@@ -33,7 +33,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const sequelize_1 = require("sequelize");
-const Users_1 = require("../exceptions/Users");
+const exceptions_1 = require("../exceptions");
 const models_1 = require("../models");
 const bcrypt = __importStar(require("bcrypt"));
 const getUsers = () => __awaiter(void 0, void 0, void 0, function* () {
@@ -44,40 +44,44 @@ const getNonSensitiveUserInformation = (users) => {
     if (users instanceof Array) {
         return users.map(user => {
             return {
-                username: user.username
+                username: user.username,
             };
         });
     }
     else {
         return {
-            username: users.username
+            username: users.username,
         };
     }
 };
 const getSingleUser = (username) => __awaiter(void 0, void 0, void 0, function* () {
-    const user = yield models_1.User.findByPk(username);
+    const user = yield models_1.User.findByPk(username, {
+        attributes: { exclude: ['password'] }
+    });
     if (user) {
         return user;
     }
-    else {
-        throw new Users_1.UserNotFoundException(username);
-    }
+    throw new exceptions_1.NotFoundException(username);
 });
 const addUser = (newUserEntry) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const saltRounds = 10;
         newUserEntry.password = yield bcrypt.hash(newUserEntry.password, saltRounds);
-        const user = yield models_1.User.create(newUserEntry);
+        const image = yield models_1.Image.findByPk(newUserEntry.image_id);
+        const user = yield models_1.User.create(Object.assign(Object.assign({}, newUserEntry), { imageId: image === null || image === void 0 ? void 0 : image.id }));
         return user;
     }
     catch (err) {
         if (err instanceof sequelize_1.UniqueConstraintError) {
             const msg = err.errors.map(err => err.message).join(',');
-            throw new Users_1.UserBadRequestException(msg);
+            throw new exceptions_1.BadRequestException(msg);
         }
         else if (err instanceof sequelize_1.ValidationError) {
             const msg = err.errors.map(err => err.message).join(',');
-            throw new Users_1.UserBadRequestException(msg);
+            throw new exceptions_1.BadRequestException(msg);
+        }
+        else {
+            throw new Error();
         }
     }
 });
@@ -85,7 +89,9 @@ const deleteUser = (username) => __awaiter(void 0, void 0, void 0, function* () 
     const user = yield getSingleUser(username);
     if (user) {
         yield user.destroy();
+        return true;
     }
+    return false;
 });
 const updateUser = (username, newUserEntry) => __awaiter(void 0, void 0, void 0, function* () {
     const user = yield getSingleUser(username);

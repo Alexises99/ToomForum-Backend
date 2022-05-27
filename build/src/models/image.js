@@ -12,11 +12,8 @@ Image.init({
         primaryKey: true,
         autoIncrement: true,
     },
-    type: {
-        type: sequelize_1.DataTypes.STRING
-    },
     data: {
-        type: sequelize_1.DataTypes.BLOB('long')
+        type: sequelize_1.DataTypes.BLOB
     },
     name: {
         type: sequelize_1.DataTypes.TEXT,

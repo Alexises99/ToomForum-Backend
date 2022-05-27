@@ -54,8 +54,7 @@ loginRouter.post('/', ((req, res, next) => __awaiter(void 0, void 0, void 0, fun
         ? false
         : yield bcrypt.compare(body.password, user.password);
     if (!(passwordCorrect && user)) {
-        const err = new NotAuthorized_1.default('invalid username or password');
-        next(err);
+        next(new NotAuthorized_1.default('invalid username or password'));
         return;
     }
     const userForToken = {

@@ -16,7 +16,6 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const supertest_1 = __importDefault(require("supertest"));
 const app_1 = require("../app");
 const usersTestHelper_1 = __importDefault(require("../utils/tests/usersTestHelper"));
-const db_1 = require("../utils/db");
 const api = (0, supertest_1.default)(app_1.app);
 const getToken = ({ username, password }) => __awaiter(void 0, void 0, void 0, function* () {
     const response = yield api
@@ -68,8 +67,5 @@ describe('login works properly', () => {
             .expect(401)
             .expect('Content-Type', /application\/json/);
         expect(response.body.message).toBe('Missing token');
-    }));
-    afterAll(() => __awaiter(void 0, void 0, void 0, function* () {
-        yield db_1.sequelize.close();
     }));
 });

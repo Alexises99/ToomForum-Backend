@@ -17,6 +17,7 @@ const users_1 = __importDefault(require("../services/users"));
 const parsers_1 = require("../utils/users/parsers");
 const tokens_1 = __importDefault(require("../middlewares/tokens"));
 const NotAuthorized_1 = __importDefault(require("../exceptions/NotAuthorized"));
+//import { User } from "../models"
 const usersRouter = (0, express_1.Router)();
 usersRouter.get('/', ((_req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const users = yield users_1.default.getUsers();
@@ -27,7 +28,7 @@ usersRouter.post('/', ((req, res, next) => __awaiter(void 0, void 0, void 0, fun
     try {
         const newUserEntry = (0, parsers_1.toNewUser)(req.body);
         const user = yield users_1.default.addUser(newUserEntry);
-        res.status(201).json(users_1.default.getNonSensitiveUserInformation(user));
+        res.status(201).json(user);
     }
     catch (err) {
         next(err);
@@ -38,7 +39,8 @@ usersRouter.get('/:username', tokens_1.default.getUserFromToken, ((req, res, nex
     try {
         if (((_a = req.user) === null || _a === void 0 ? void 0 : _a.username) === req.params.username) {
             const user = yield users_1.default.getSingleUser(req.params.username);
-            res.json(users_1.default.getNonSensitiveUserInformation(user));
+            //res.json(usersService.getNonSensitiveUserInformation(user))
+            res.json(user);
         }
         else {
             next(new NotAuthorized_1.default('not authorized, you are not this user'));

@@ -14,7 +14,14 @@ User.init({
     password: {
         type: sequelize_1.DataTypes.TEXT,
         allowNull: false,
-        unique: true
+    },
+    imageId: {
+        type: sequelize_1.DataTypes.INTEGER,
+        allowNull: true,
+        references: {
+            model: 'images',
+            key: 'id'
+        }
     }
 }, {
     sequelize: db_1.sequelize,
