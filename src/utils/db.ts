@@ -4,7 +4,10 @@ import * as logger from './logger'
 
 const sequelize = new Sequelize(config.POSTGREESQL as string, {
   dialectOptions: {
-    ssl: false
+    ssl: {
+      require: true,
+      rejectUnauthorized: false
+    }
   },
   logging: false
 })
