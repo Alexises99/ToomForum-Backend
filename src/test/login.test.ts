@@ -3,7 +3,6 @@ import supertest from 'supertest'
 import { app } from '../app'
 import userTestHelper from '../utils/tests/usersTestHelper'
 import { UserEntry } from '../models/user'
-import { sequelize } from '../utils/db'
 
 const api = supertest(app)
 
@@ -73,9 +72,5 @@ describe('login works properly', () => {
       .expect('Content-Type', /application\/json/)
 
     expect(response.body.message).toBe('Missing token')
-  })
-
-  afterAll(async () => {
-    await sequelize.close()
   })
 })

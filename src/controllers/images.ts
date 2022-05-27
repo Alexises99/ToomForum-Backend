@@ -1,31 +1,33 @@
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 import { RequestHandler, Router } from "express"
-import { Image } from "../models/image"
 import { type UploadedFile} from 'express-fileupload'
+import { BadRequestException } from "../exceptions/BadRequest"
+import imageService from "../services/images"
+import NotFoundException from "../exceptions/NotFound"
 
 const imageRouter = Router()
 
 imageRouter.post('/', (async (req, res, next) => {
   if (!req.files) {
-    res.status(400).send('No files were uploaded')
+    const err = new BadRequestException('No files were uploaded')
+    next(err)
   }
   const image = req.files?.profileImage as UploadedFile
-  try {
-    if (image) {
-      const imageSaved = await Image.create({name: image.name, data: image.data})
-      res.status(200).json({imageId: imageSaved.id})
-    }
-  } catch (err) {
-    next(err)
+  if (image) {
+    const {name, data} = image
+    const imageSaved = await imageService.create({data, name})
+    res.status(201).json({imageId: imageSaved.id})
   }
 }) as RequestHandler)
 
-imageRouter.get('/:id', (async (req, res) => {
-  const image = await Image.findByPk(req.params.id)
+imageRouter.get('/:id', (async (req, res, next) => {
+  const image = await imageService.getOne(+req.params.id)
+  
   if (image) {
+    console.log('hola')
     res.status(200).end(image.data)
   } else {
-    res.status(404).end()
+    next(new NotFoundException(`Image with id: ${req.params.id} not found`))
   }
 }) as RequestHandler)
 

@@ -22,10 +22,8 @@ loginRouter.post('/', (async (req,res, next) => {
     ? false
     : await bcrypt.compare(body.password, user.password)
   
-  
   if (!(passwordCorrect && user)) {
-    const err = new NotAuthorizedException('invalid username or password')
-    next(err)
+    next(new NotAuthorizedException('invalid username or password'))
     return
   }
 

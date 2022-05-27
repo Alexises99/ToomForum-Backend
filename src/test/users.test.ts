@@ -3,7 +3,6 @@ import userTestHelper from '../utils/tests/usersTestHelper'
 import supertest from 'supertest'
 import { app } from '../app'
 import { UserEntry } from '../models/user'
-import { sequelize } from '../utils/db'
 
 const api = supertest(app)
 
@@ -156,7 +155,4 @@ describe('Users tests', () => {
     expect(response.body.message).toBe('not authorized, you are not this user')
   })
 
-  afterAll(async () => {
-    await sequelize.close()
-  })
 })

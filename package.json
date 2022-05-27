@@ -4,7 +4,7 @@
   "description": "Servidor Web para mi App de Toom Forum",
   "main": "index.js",
   "scripts": {
-    "test": "NODE_ENV=test jest --verbose --runInBand",
+    "test": "NODE_ENV=test jest --verbose --runInBand --forceExit",
     "test:coverage": "NODE_ENV=test jest --coverage --verbose --runInBand",
     "start": "NODE_ENV=production node build/src/index.js",
     "start:test": "NODE_ENV=test node build/src/index.js",

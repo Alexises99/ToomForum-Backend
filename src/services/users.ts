@@ -1,5 +1,5 @@
 import { UniqueConstraintError, ValidationError } from "sequelize"
-import { UserBadRequestException, UserNotFoundException } from "../exceptions/Users"
+import { NotFoundException, BadRequestException } from "../exceptions"
 import { UserEntry, UserEntryWithImage } from "../models/user"
 import { User, Image } from "../models"
 import * as bcrypt from 'bcrypt'
@@ -27,11 +27,13 @@ const getSingleUser = async (username: string): Promise<User> => {
   const user = await User.findByPk(username, {
     attributes: { exclude: ['password']}
   })
-  if (user){
+
+  if (user) {
     return user
-  } else {
-    throw new UserNotFoundException(username)
   }
+
+  throw new NotFoundException(username)
+  
 }
 
 const addUser = async (newUserEntry: UserEntryWithImage): Promise<User | void>  => {
@@ -44,19 +46,23 @@ const addUser = async (newUserEntry: UserEntryWithImage): Promise<User | void>  
   } catch (err) {
     if (err instanceof UniqueConstraintError) {
       const msg = err.errors.map(err => err.message).join(',')
-      throw new UserBadRequestException(msg)
+      throw new BadRequestException(msg)
     } else if(err instanceof ValidationError) {
       const msg = err.errors.map(err => err.message).join(',')
-      throw new UserBadRequestException(msg)
+      throw new BadRequestException(msg)
+    } else {
+      throw new Error()
     }
   }
 }
 
-const deleteUser = async (username: string): Promise<void> => {
+const deleteUser = async (username: string): Promise<boolean> => {
   const user = await getSingleUser(username)
   if (user) {
     await user.destroy()
+    return true
   }
+  return false
 }
 
 const updateUser =  async (username: string, newUserEntry: UserEntry): Promise<User | null> => {
