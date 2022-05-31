@@ -1,18 +1,21 @@
-import {Sequelize} from 'sequelize';
-import config from './config'
-import * as logger from './logger'
+import { Sequelize } from "sequelize"
+import config from "./config"
+import * as logger from "./logger"
 
 const sequelize = new Sequelize(config.POSTGREESQL as string, {
   dialectOptions: {
-    ssl: false
+    ssl: {
+      require: true,
+      rejectUnauthorized: false,
+    },
   },
-  logging: false
+  logging: false,
 })
 
 const connectToDataBase = async (): Promise<null> => {
   try {
     await sequelize.authenticate()
-    logger.info('connected to the database')
+    logger.info("connected to the database")
   } catch (err) {
     // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
     logger.error(`failed to connect to the database ${err}`)
@@ -21,10 +24,7 @@ const connectToDataBase = async (): Promise<null> => {
   return null
 }
 
-export {
-  sequelize,
-  connectToDataBase
-}
+export { sequelize, connectToDataBase }
 
 /**
  * {

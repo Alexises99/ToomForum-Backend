@@ -41,15 +41,18 @@ const config_1 = __importDefault(require("./config"));
 const logger = __importStar(require("./logger"));
 const sequelize = new sequelize_1.Sequelize(config_1.default.POSTGREESQL, {
     dialectOptions: {
-        ssl: false
+        ssl: {
+            require: true,
+            rejectUnauthorized: false,
+        },
     },
-    logging: false
+    logging: false,
 });
 exports.sequelize = sequelize;
 const connectToDataBase = () => __awaiter(void 0, void 0, void 0, function* () {
     try {
         yield sequelize.authenticate();
-        logger.info('connected to the database');
+        logger.info("connected to the database");
     }
     catch (err) {
         // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
@@ -64,4 +67,4 @@ exports.connectToDataBase = connectToDataBase;
       require: true,
       rejectUnauthorized: false
     }
- */ 
+ */
