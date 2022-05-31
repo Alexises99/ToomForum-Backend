@@ -2,7 +2,7 @@ import { UniqueConstraintError, ValidationError } from "sequelize"
 import { NotFoundException, BadRequestException } from "../exceptions"
 import { UserEntry, UserEntryWithImage } from "../models/user"
 import { User, Image } from "../models"
-import * as bcrypt from 'bcrypt'
+import * as bcrypt from "bcrypt"
 
 const getUsers = async (): Promise<Array<User>> => {
   const users = await User.findAll()
@@ -11,7 +11,7 @@ const getUsers = async (): Promise<Array<User>> => {
 
 const getNonSensitiveUserInformation = (users: Array<User> | User) => {
   if (users instanceof Array) {
-    return users.map(user => {
+    return users.map((user) => {
       return {
         username: user.username,
       }
@@ -25,7 +25,7 @@ const getNonSensitiveUserInformation = (users: Array<User> | User) => {
 
 const getSingleUser = async (username: string): Promise<User> => {
   const user = await User.findByPk(username, {
-    attributes: { exclude: ['password']}
+    attributes: { exclude: ["password"] },
   })
 
   if (user) {
@@ -33,22 +33,32 @@ const getSingleUser = async (username: string): Promise<User> => {
   }
 
   throw new NotFoundException(username)
-  
 }
 
-const addUser = async (newUserEntry: UserEntryWithImage): Promise<User | void>  => {
+const addUser = async (
+  newUserEntry: UserEntryWithImage
+): Promise<User | void> => {
   try {
     const saltRounds = 10
     newUserEntry.password = await bcrypt.hash(newUserEntry.password, saltRounds)
+
     const image = await Image.findByPk(newUserEntry.image_id as number)
-    const user = await User.create({...newUserEntry, imageId: image?.id as number})
+    let user
+    if (image) {
+      user = await User.create({
+        ...newUserEntry,
+        imageId: image?.id as number,
+      })
+    } else {
+      user = await User.create({ ...newUserEntry })
+    }
     return user
   } catch (err) {
     if (err instanceof UniqueConstraintError) {
-      const msg = err.errors.map(err => err.message).join(',')
+      const msg = err.errors.map((err) => err.message).join(",")
       throw new BadRequestException(msg)
-    } else if(err instanceof ValidationError) {
-      const msg = err.errors.map(err => err.message).join(',')
+    } else if (err instanceof ValidationError) {
+      const msg = err.errors.map((err) => err.message).join(",")
       throw new BadRequestException(msg)
     } else {
       throw new Error()
@@ -65,7 +75,10 @@ const deleteUser = async (username: string): Promise<boolean> => {
   return false
 }
 
-const updateUser =  async (username: string, newUserEntry: UserEntry): Promise<User | null> => {
+const updateUser = async (
+  username: string,
+  newUserEntry: UserEntry
+): Promise<User | null> => {
   const user = await getSingleUser(username)
   if (user) {
     user.password = newUserEntry.password
@@ -81,5 +94,5 @@ export default {
   addUser,
   deleteUser,
   updateUser,
-  getNonSensitiveUserInformation
+  getNonSensitiveUserInformation,
 }
