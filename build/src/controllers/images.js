@@ -18,10 +18,10 @@ const BadRequest_1 = require("../exceptions/BadRequest");
 const images_1 = __importDefault(require("../services/images"));
 const NotFound_1 = __importDefault(require("../exceptions/NotFound"));
 const imageRouter = (0, express_1.Router)();
-imageRouter.post('/', ((req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+imageRouter.post("/", ((req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     var _a;
     if (!req.files) {
-        const err = new BadRequest_1.BadRequestException('No files were uploaded');
+        const err = new BadRequest_1.BadRequestException("No files were uploaded");
         next(err);
     }
     const image = (_a = req.files) === null || _a === void 0 ? void 0 : _a.profileImage;
@@ -31,7 +31,11 @@ imageRouter.post('/', ((req, res, next) => __awaiter(void 0, void 0, void 0, fun
         res.status(201).json({ imageId: imageSaved.id });
     }
 })));
-imageRouter.get('/:id', ((req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+imageRouter.get("/:id", ((req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    if (!+req.params.id) {
+        console.log("Usuario sin imagen asociada");
+        return;
+    }
     const image = yield images_1.default.getOne(+req.params.id);
     if (image) {
         res.status(200).end(image.data);

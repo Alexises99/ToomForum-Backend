@@ -42,7 +42,7 @@ const getUsers = () => __awaiter(void 0, void 0, void 0, function* () {
 });
 const getNonSensitiveUserInformation = (users) => {
     if (users instanceof Array) {
-        return users.map(user => {
+        return users.map((user) => {
             return {
                 username: user.username,
             };
@@ -56,7 +56,7 @@ const getNonSensitiveUserInformation = (users) => {
 };
 const getSingleUser = (username) => __awaiter(void 0, void 0, void 0, function* () {
     const user = yield models_1.User.findByPk(username, {
-        attributes: { exclude: ['password'] }
+        attributes: { exclude: ["password"] },
     });
     if (user) {
         return user;
@@ -68,16 +68,22 @@ const addUser = (newUserEntry) => __awaiter(void 0, void 0, void 0, function* ()
         const saltRounds = 10;
         newUserEntry.password = yield bcrypt.hash(newUserEntry.password, saltRounds);
         const image = yield models_1.Image.findByPk(newUserEntry.image_id);
-        const user = yield models_1.User.create(Object.assign(Object.assign({}, newUserEntry), { imageId: image === null || image === void 0 ? void 0 : image.id }));
+        let user;
+        if (image) {
+            user = yield models_1.User.create(Object.assign(Object.assign({}, newUserEntry), { imageId: image === null || image === void 0 ? void 0 : image.id }));
+        }
+        else {
+            user = yield models_1.User.create(Object.assign({}, newUserEntry));
+        }
         return user;
     }
     catch (err) {
         if (err instanceof sequelize_1.UniqueConstraintError) {
-            const msg = err.errors.map(err => err.message).join(',');
+            const msg = err.errors.map((err) => err.message).join(",");
             throw new exceptions_1.BadRequestException(msg);
         }
         else if (err instanceof sequelize_1.ValidationError) {
-            const msg = err.errors.map(err => err.message).join(',');
+            const msg = err.errors.map((err) => err.message).join(",");
             throw new exceptions_1.BadRequestException(msg);
         }
         else {
@@ -108,5 +114,5 @@ exports.default = {
     addUser,
     deleteUser,
     updateUser,
-    getNonSensitiveUserInformation
+    getNonSensitiveUserInformation,
 };
