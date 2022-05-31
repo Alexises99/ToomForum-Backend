@@ -24,7 +24,6 @@ imageRouter.get('/:id', (async (req, res, next) => {
   const image = await imageService.getOne(+req.params.id)
   
   if (image) {
-    console.log('hola')
     res.status(200).end(image.data)
   } else {
     next(new NotFoundException(`Image with id: ${req.params.id} not found`))

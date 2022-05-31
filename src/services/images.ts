@@ -3,9 +3,11 @@ import { ImageType } from "../models/image"
 
 const getOne = async (id: number): Promise<Image | null> => {
   try {
+    console.log(id)
     const image = await Image.findByPk(id)
     return image
   } catch (err) {
+    console.log(err)
     throw new Error()
   }
 }
