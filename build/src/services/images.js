@@ -12,10 +12,12 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const models_1 = require("../models");
 const getOne = (id) => __awaiter(void 0, void 0, void 0, function* () {
     try {
+        console.log(id);
         const image = yield models_1.Image.findByPk(id);
         return image;
     }
     catch (err) {
+        console.log(err);
         throw new Error();
     }
 });

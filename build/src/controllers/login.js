@@ -59,11 +59,13 @@ loginRouter.post('/', ((req, res, next) => __awaiter(void 0, void 0, void 0, fun
     }
     const userForToken = {
         username: user.username,
+        image_id: user.imageId
     };
     const username = userForToken.username;
+    const imageId = userForToken.image_id;
     const token = jsonwebtoken_1.default.sign(userForToken, config_1.default.SECRET);
     return res
         .status(200)
-        .json({ token, username });
+        .json({ token, username, imageId });
 })));
 exports.default = loginRouter;

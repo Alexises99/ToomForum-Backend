@@ -34,7 +34,6 @@ imageRouter.post('/', ((req, res, next) => __awaiter(void 0, void 0, void 0, fun
 imageRouter.get('/:id', ((req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     const image = yield images_1.default.getOne(+req.params.id);
     if (image) {
-        console.log('hola');
         res.status(200).end(image.data);
     }
     else {
