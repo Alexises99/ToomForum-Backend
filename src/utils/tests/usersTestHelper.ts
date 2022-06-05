@@ -1,22 +1,22 @@
-import { User } from "../../models";
-import {  UserEntryWithImage } from "../../models/user";
-import * as bcrypt from 'bcrypt'
+import { User } from "../../models"
+import * as bcrypt from "bcrypt"
+import { UserWithImage } from "../../models/user"
 
-const initialUsers: Array<UserEntryWithImage> = [
+const initialUsers: Array<UserWithImage> = [
   {
-    username: 'elubuntin',
-    password: 'pinguino',
-    image_id: null
+    username: "elubuntin",
+    password: "pinguino",
+    image_id: null,
   },
   {
-    username: 'lowrins',
-    password: 'tortuga',
-    image_id: null
+    username: "lowrins",
+    password: "tortuga",
+    image_id: null,
   },
   {
-    username: 'ranaldo',
-    password: 'culero',
-    image_id: null
+    username: "ranaldo",
+    password: "culero",
+    image_id: null,
   },
 ]
 
@@ -26,9 +26,13 @@ const usersInDb = async (): Promise<Array<User>> => {
 }
 
 const createUsers = (): Promise<Array<User>> => {
-  const createdUsers = initialUsers.map(async user => {
+  const createdUsers = initialUsers.map(async (user) => {
     const password = await bcrypt.hash(user.password, 10)
-    return await User.create({username: user.username, password, imageId: null})
+    return await User.create({
+      username: user.username,
+      password,
+      imageId: null,
+    })
   })
 
   return Promise.all(createdUsers)
@@ -37,7 +41,7 @@ const createUsers = (): Promise<Array<User>> => {
 const deleteUsers = async (): Promise<void> => {
   await User.destroy({
     where: {},
-    truncate: false
+    truncate: false,
   })
 }
 
@@ -45,5 +49,5 @@ export default {
   initialUsers,
   usersInDb,
   createUsers,
-  deleteUsers
+  deleteUsers,
 }

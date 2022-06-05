@@ -1,44 +1,43 @@
 import { RequestHandler, Router } from "express"
 import { User } from "../models"
 import { toNewUser } from "../utils/users/parsers"
-import * as bcrypt from 'bcrypt'
-import jwt from 'jsonwebtoken'
-import config from '../utils/config'
-import { UserEntryWithImage } from "../models/user"
+import * as bcrypt from "bcrypt"
+import jwt from "jsonwebtoken"
+import config from "../utils/config"
+import { UserAttributes } from "../models/user"
 import NotAuthorizedException from "../exceptions/NotAuthorized"
 
 const loginRouter = Router()
 
-loginRouter.post('/', (async (req,res, next) => {
+loginRouter.post("/", (async (req, res, next) => {
   const body = toNewUser(req.body)
 
   const user = await User.findOne({
     where: {
-      username: body.username
-    }
+      username: body.username,
+    },
   })
 
-  const passwordCorrect = user === null
-    ? false
-    : await bcrypt.compare(body.password, user.password)
-  
+  const image = await user?.getImage()
+
+  const passwordCorrect =
+    user === null ? false : await bcrypt.compare(body.password, user.password)
+
   if (!(passwordCorrect && user)) {
-    next(new NotAuthorizedException('invalid username or password'))
+    next(new NotAuthorizedException("invalid username or password"))
     return
   }
 
-  const userForToken: Omit<UserEntryWithImage, 'password'> = {
+  const userForToken: Omit<UserAttributes, "password"> = {
+    id: user.id,
     username: user.username,
-    image_id: user.imageId
+    image_id: image?.id as number | null,
   }
 
-  const username = userForToken.username
-  const imageId = userForToken.image_id
+  const { id, username, image_id } = userForToken
 
   const token = jwt.sign(userForToken, config.SECRET as jwt.Secret)
-  return res
-    .status(200)
-    .json({token, username, imageId})
+  return res.status(200).json({ token, username, ImageId: image_id, id })
 }) as RequestHandler)
 
 export default loginRouter

@@ -1,40 +1,50 @@
-import { Model, DataTypes, InferAttributes, InferCreationAttributes, CreationOptional } from "sequelize"
-import {sequelize} from '../utils/db'
+import {
+  Model,
+  DataTypes,
+  InferAttributes,
+  InferCreationAttributes,
+  CreationOptional,
+} from "sequelize"
+import { sequelize } from "../utils/db"
 
-
-interface ImageType {
-  id: number
-  name: string,
+interface NewImage {
+  name: string
   data: Buffer
 }
 
-class Image extends Model<InferAttributes<Image>, InferCreationAttributes<Image>>{
+interface ImageAttributes extends NewImage {
+  id: number
+}
+
+class Image extends Model<
+  InferAttributes<Image>,
+  InferCreationAttributes<Image>
+> {
   declare id: CreationOptional<number>
   declare data: Buffer
   declare name: string
 }
 
-Image.init({
-  id:{
-    type: DataTypes.INTEGER,
-    primaryKey: true,
-    autoIncrement: true,
+Image.init(
+  {
+    id: {
+      type: DataTypes.INTEGER,
+      primaryKey: true,
+      autoIncrement: true,
+    },
+    data: {
+      type: DataTypes.BLOB,
+      allowNull: false,
+    },
+    name: {
+      type: DataTypes.TEXT,
+      allowNull: false,
+    },
   },
-  data: {
-    type: DataTypes.BLOB
-  },
-  name: {
-    type: DataTypes.TEXT,
-    allowNull: false,
+  {
+    sequelize,
+    timestamps: false,
   }
-}, {
-  sequelize,
-  underscored: true,
-  timestamps: false,
-  modelName: 'image',
-})
+)
 
-export  {
-  Image,
-  ImageType
-}
+export { Image, ImageAttributes, NewImage }

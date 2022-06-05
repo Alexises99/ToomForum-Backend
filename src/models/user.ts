@@ -1,54 +1,82 @@
-import { Model, DataTypes, InferAttributes, InferCreationAttributes } from "sequelize"
-import {sequelize} from '../utils/db'
+import {
+  Model,
+  DataTypes,
+  InferAttributes,
+  InferCreationAttributes,
+  ForeignKey,
+  CreationOptional,
+  HasOneCreateAssociationMixin,
+  HasOneGetAssociationMixin,
+  HasOneSetAssociationMixin,
+} from "sequelize"
+import { sequelize } from "../utils/db"
+import { Image } from "./image"
+import { Island } from "./island"
 
-
-interface UserEntry {
+interface NewUser {
   username: string
-  password: string,
+  password: string
 }
 
-interface UserEntryWithImage extends UserEntry{
+interface UserWithImage extends NewUser {
   image_id: number | null
 }
 
-type NonSensitiveInfo = Omit<UserEntry, 'password'>
-
-
-class User extends Model<InferAttributes<User>, InferCreationAttributes<User>>{
-  declare username: string
-  declare password: string
-  declare imageId: number | null
+interface UserAttributes extends UserWithImage {
+  id: number
 }
 
-User.init({
-  username: {
-    type: DataTypes.TEXT,
-    primaryKey: true,
+interface UserWithIsland extends UserWithImage {
+  islandName: string
+  fruit: string
+  dreamcode: string
+}
+
+type NonSensitiveInfo = Omit<UserWithImage, "password">
+
+class User extends Model<InferAttributes<User>, InferCreationAttributes<User>> {
+  declare id: CreationOptional<number>
+  declare username: string
+  declare password: string
+  declare imageId: ForeignKey<Image["id"]> | null
+
+  declare createImage: HasOneCreateAssociationMixin<Image>
+  declare getImage: HasOneGetAssociationMixin<Image>
+  declare setImage: HasOneSetAssociationMixin<Image, "id">
+
+  declare createIsland: HasOneCreateAssociationMixin<Island>
+  declare getIsland: HasOneGetAssociationMixin<Island>
+  declare setIsland: HasOneSetAssociationMixin<Island, "id">
+}
+
+User.init(
+  {
+    id: {
+      type: DataTypes.INTEGER,
+      primaryKey: true,
+      autoIncrement: true,
+    },
+    username: {
+      type: DataTypes.TEXT,
+      allowNull: false,
+      unique: true,
+    },
+    password: {
+      type: DataTypes.TEXT,
+      allowNull: false,
+    },
   },
-  password: {
-    type: DataTypes.TEXT,
-    allowNull: false,
-  },
-  imageId: {
-    type: DataTypes.INTEGER,
-    allowNull: true,
-    references: {
-      model: 'images',
-      key: 'id'
-    }
+  {
+    sequelize,
+    timestamps: false,
   }
-}, {
-  sequelize,
-  underscored: true,
-  timestamps: false,
-  modelName: 'user',
-})
+)
 
-
-
-export  {
+export {
   User,
   NonSensitiveInfo,
-  UserEntry,
-  UserEntryWithImage
+  NewUser,
+  UserWithImage,
+  UserAttributes,
+  UserWithIsland,
 }

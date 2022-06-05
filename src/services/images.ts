@@ -1,9 +1,8 @@
 import { Image } from "../models"
-import { ImageType } from "../models/image"
+import { NewImage } from "../models/image"
 
 const getOne = async (id: number): Promise<Image | null> => {
   try {
-    console.log(id)
     const image = await Image.findByPk(id)
     return image
   } catch (err) {
@@ -12,9 +11,9 @@ const getOne = async (id: number): Promise<Image | null> => {
   }
 }
 
-const create = async ({data, name}: Omit<ImageType, 'id'>): Promise <Image> => {
+const create = async ({ data, name }: NewImage): Promise<Image> => {
   try {
-    const imageSaved = await Image.create({name, data})
+    const imageSaved = await Image.create({ name, data })
     return imageSaved
   } catch (err) {
     throw new Error()
@@ -23,5 +22,5 @@ const create = async ({data, name}: Omit<ImageType, 'id'>): Promise <Image> => {
 
 export default {
   getOne,
-  create
+  create,
 }

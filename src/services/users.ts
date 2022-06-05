@@ -1,30 +1,28 @@
 import { UniqueConstraintError, ValidationError } from "sequelize"
 import { NotFoundException, BadRequestException } from "../exceptions"
-import { UserEntry, UserEntryWithImage } from "../models/user"
+import { UserWithImage, UserWithIsland } from "../models/user"
 import { User, Image } from "../models"
 import * as bcrypt from "bcrypt"
 
 const getUsers = async (): Promise<Array<User>> => {
-  const users = await User.findAll()
+  const users = await User.findAll({
+    attributes: { exclude: ["password"] },
+  })
   return users
 }
 
-const getNonSensitiveUserInformation = (users: Array<User> | User) => {
-  if (users instanceof Array) {
-    return users.map((user) => {
-      return {
-        username: user.username,
-      }
-    })
-  } else {
-    return {
-      username: users.username,
-    }
+const getSingleUser = async (id: number): Promise<User> => {
+  const user = await User.findByPk(id)
+  if (user) {
+    return user
   }
+  throw new NotFoundException(`User with ${id} not found`)
 }
 
-const getSingleUser = async (username: string): Promise<User> => {
-  const user = await User.findByPk(username, {
+const getSingleUserWhitoutPassword = async (
+  id: number
+): Promise<Omit<User, "password">> => {
+  const user = await User.findByPk(id, {
     attributes: { exclude: ["password"] },
   })
 
@@ -32,26 +30,30 @@ const getSingleUser = async (username: string): Promise<User> => {
     return user
   }
 
-  throw new NotFoundException(username)
+  throw new NotFoundException(`User with ${id} not found`)
 }
 
-const addUser = async (
-  newUserEntry: UserEntryWithImage
-): Promise<User | void> => {
+const addUser = async (newUserEntry: UserWithIsland): Promise<User | void> => {
   try {
     const saltRounds = 10
     newUserEntry.password = await bcrypt.hash(newUserEntry.password, saltRounds)
+    const {
+      islandName: name,
+      fruit,
+      dreamcode: dreamCode,
+      ...newUser
+    } = newUserEntry
+    const user = await User.create({
+      ...newUser,
+    })
 
     const image = await Image.findByPk(newUserEntry.image_id as number)
-    let user
+
     if (image) {
-      user = await User.create({
-        ...newUserEntry,
-        imageId: image?.id as number,
-      })
-    } else {
-      user = await User.create({ ...newUserEntry })
+      await user.setImage(image)
     }
+
+    await user.createIsland({ name, fruit, dreamCode })
     return user
   } catch (err) {
     if (err instanceof UniqueConstraintError) {
@@ -66,8 +68,8 @@ const addUser = async (
   }
 }
 
-const deleteUser = async (username: string): Promise<boolean> => {
-  const user = await getSingleUser(username)
+const deleteUser = async (id: number): Promise<boolean> => {
+  const user = await getSingleUser(id)
   if (user) {
     await user.destroy()
     return true
@@ -76,12 +78,13 @@ const deleteUser = async (username: string): Promise<boolean> => {
 }
 
 const updateUser = async (
-  username: string,
-  newUserEntry: UserEntry
+  id: number,
+  newUserEntry: UserWithImage
 ): Promise<User | null> => {
-  const user = await getSingleUser(username)
+  const user = await getSingleUser(id)
   if (user) {
     user.password = newUserEntry.password
+    //user.imageId = newUserEntry.image_id
     await user.save()
     return user
   }
@@ -90,9 +93,8 @@ const updateUser = async (
 
 export default {
   getUsers,
-  getSingleUser,
   addUser,
   deleteUser,
   updateUser,
-  getNonSensitiveUserInformation,
+  getSingleUserWhitoutPassword,
 }

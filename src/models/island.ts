@@ -1,51 +1,54 @@
-import { Model, DataTypes, InferAttributes, InferCreationAttributes, CreationOptional } from "sequelize"
-import {sequelize} from '../utils/db'
-
+import {
+  Model,
+  DataTypes,
+  InferAttributes,
+  InferCreationAttributes,
+  CreationOptional,
+} from "sequelize"
+import { sequelize } from "../utils/db"
 
 interface IslandEntry {
-  id: number
   username: string
-  password: string
+  fruit: string
+  dreamCode: string | null
+  name: string
+  imagen: number
 }
 
-type NewIslandEntry = Omit<IslandEntry, 'id'>
-
-
-class Island extends Model<InferAttributes<Island>, InferCreationAttributes<Island>>{
+class Island extends Model<
+  InferAttributes<Island>,
+  InferCreationAttributes<Island>
+> {
   declare id: CreationOptional<number>
   declare fruit: string
-  declare dreamCode: string
+  declare dreamCode: string | null
   declare name: string
 }
 
-Island.init({
-  id:{
-    type: DataTypes.INTEGER,
-    primaryKey: true,
-    autoIncrement: true,
+Island.init(
+  {
+    id: {
+      type: DataTypes.INTEGER,
+      primaryKey: true,
+      autoIncrement: true,
+    },
+    fruit: {
+      type: DataTypes.TEXT,
+      allowNull: false,
+    },
+    dreamCode: {
+      type: DataTypes.TEXT,
+      unique: true,
+    },
+    name: {
+      type: DataTypes.TEXT,
+      allowNull: false,
+    },
   },
-  fruit: {
-    type: DataTypes.TEXT,
-    allowNull: false,
-  },
-  dreamCode: {
-    type: DataTypes.TEXT,
-    unique: true
-  },
-  name: {
-    type: DataTypes.TEXT,
-    allowNull: false,
-    unique: true
+  {
+    sequelize,
+    timestamps: false,
   }
-}, {
-  sequelize,
-  underscored: true,
-  timestamps: false,
-  modelName: 'island',
-})
+)
 
-export  {
-  Island,
-  NewIslandEntry,
-  IslandEntry
-}
+export { Island, IslandEntry }
